@@ -20,12 +20,12 @@ theta0_init = np.pi / 6
 omega0_init = 0.0
 
 
-def pendulum_derivative(state):
+def pendulum_derivative(state) -> np.ndarray:
     theta, omega = state
     return np.array([omega, -(g / L) * np.sin(theta)])
 
 
-def solve_nonlinear_rk4(theta0, omega0=0.0):
+def solve_rk4(theta0, omega0=0.0) -> tuple[np.ndarray, np.ndarray]:
     states = np.zeros((len(t), 2))
     states[0] = [theta0, omega0]
 
@@ -40,7 +40,7 @@ def solve_nonlinear_rk4(theta0, omega0=0.0):
     return states[:, 0], states[:, 1]
 
 
-def solve_nonlinear_euler(theta0, omega0=0.0):
+def solve_euler(theta0, omega0=0.0) -> tuple[np.ndarray, np.ndarray]:
     theta = np.zeros(len(t))
     omega = np.zeros(len(t))
     theta[0] = theta0
@@ -53,13 +53,13 @@ def solve_nonlinear_euler(theta0, omega0=0.0):
     return theta, omega
 
 
-def solve_small_angle(theta0, omega0=0.0):
+def solve_small_angle(theta0, omega0=0.0) -> tuple[np.ndarray, np.ndarray]:
     theta = theta0 * np.cos(w0 * t) + (omega0 / w0) * np.sin(w0 * t)
     omega = -theta0 * w0 * np.sin(w0 * t) + omega0 * np.cos(w0 * t)
     return theta, omega
 
 
-def energies(theta, omega, small_angle=False):
+def energies(theta, omega, small_angle=False) -> tuple[np.ndarray, np.ndarray]:
     kinetic = 0.5 * m * (L * omega) ** 2
     if small_angle:
         potential = 0.5 * m * g * L * theta**2
@@ -68,9 +68,9 @@ def energies(theta, omega, small_angle=False):
     return kinetic, potential
 
 
-def compute_curves(theta0):
-    theta_rk4, omega_rk4 = solve_nonlinear_rk4(theta0, omega0_init)
-    theta_euler, omega_euler = solve_nonlinear_euler(theta0, omega0_init)
+def compute_curves(theta0) -> dict[str, np.ndarray]:
+    theta_rk4, omega_rk4 = solve_rk4(theta0, omega0_init)
+    theta_euler, omega_euler = solve_euler(theta0, omega0_init)
     theta_lin, omega_lin = solve_small_angle(theta0, omega0_init)
 
     ec_rk4, ep_rk4 = energies(theta_rk4, omega_rk4, small_angle=False)
@@ -164,7 +164,7 @@ velocity_vector = ax_anim.quiver(
     width=0.008,
     zorder=7,
 )
-velocity_label = ax_anim.text(0, 0, "v", color="#00b894", fontsize=11, fontweight="bold", zorder=8)
+velocity_label = ax_anim.text(0, 0, "V", color="#00b894", fontsize=11, fontweight="bold", zorder=8)
 theta_text = ax_anim.text(
     0,
     -L * 1.25,
@@ -250,7 +250,7 @@ for ax, ylabel, title in [
     ax.grid(True, alpha=0.25)
 
 
-def set_energy_limits():
+def set_energy_limits() -> None:
     max_energy = max(
         np.max(curves["ec_lin"]),
         np.max(curves["ec_rk4"]),
@@ -264,7 +264,7 @@ def set_energy_limits():
     ax_ep.set_ylim(-0.04 * max_energy, 1.12 * max_energy)
 
 
-def draw_swing(frame_index):
+def draw_swing(frame_index) -> None:
     theta = curves["theta_rk4"][frame_index]
     omega = curves["omega_rk4"][frame_index]
     theta_lin = curves["theta_lin"][frame_index]
@@ -279,18 +279,19 @@ def draw_swing(frame_index):
     velocity = velocity_length * tangent
     acceleration = acceleration_length * tangent
 
+    SCALE = 2.3
     rope_lin.set_data([0, x_lin], [0, y_lin])
     bob_lin.set_data([x_lin], [y_lin + 0.1])
     rope.set_data([0, x], [0, y])
     bob.set_data([x], [y + 0.1])
     shadow.set_data([x - seat_width * 0.55, x + seat_width * 0.55], [-L * 1.1, -L * 1.1])
     velocity_vector.set_offsets([[x, y + 0.1]])
-    velocity_vector.set_UVC([velocity[0]], [velocity[1]])
-    velocity_label.set_position((x + velocity[0] + 0.08, y + 0.1 + velocity[1] + 0.24))
+    velocity_vector.set_UVC([velocity[0]*SCALE], [velocity[1]*SCALE])
+    velocity_label.set_position((x + velocity[0] + 0.08, y + 0.1 + velocity[1] - 0.24))
     theta_text.set_text(f"theta(0) = {theta_slider.val:.2f} rad    theta(t) = {theta:.2f} rad")
 
 
-def draw_markers(frame_index):
+def draw_markers(frame_index) -> None:
     current_t = t[frame_index]
     ec_marker_lin.set_data([current_t], [curves["ec_lin"][frame_index]])
     ec_marker_rk4.set_data([current_t], [curves["ec_rk4"][frame_index]])
@@ -300,7 +301,7 @@ def draw_markers(frame_index):
     ep_marker_euler.set_data([current_t], [curves["ep_euler"][frame_index]])
 
 
-def refresh_curves(theta0):
+def refresh_curves(theta0) -> None:
     global curves
     curves = compute_curves(theta0)
 
@@ -316,11 +317,11 @@ def refresh_curves(theta0):
     fig.canvas.draw_idle()
 
 
-def on_slider_change(value):
+def on_slider_change(value) -> None:
     refresh_curves(value)
 
 
-def reset(_event):
+def reset(_event) -> None:
     theta_slider.reset()
 
 
@@ -343,7 +344,7 @@ reset_button.on_clicked(reset)
 set_energy_limits()
 
 
-def animate(frame_index):
+def animate(frame_index) -> tuple[object, ...]:
     draw_swing(frame_index)
     draw_markers(frame_index)
     return (
