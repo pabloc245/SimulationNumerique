@@ -12,7 +12,7 @@ g = 9.81
 w0 = np.sqrt(g / L)
 
 t_max = 12
-n_points = 4800
+n_points = 2400
 t = np.linspace(0, t_max, n_points)
 dt = t[1] - t[0]
 
@@ -164,20 +164,7 @@ velocity_vector = ax_anim.quiver(
     width=0.008,
     zorder=7,
 )
-acceleration_vector = ax_anim.quiver(
-    [0],
-    [0],
-    [0],
-    [0],
-    angles="xy",
-    scale_units="xy",
-    scale=1,
-    color="#e84393",
-    width=0.008,
-    zorder=7,
-)
 velocity_label = ax_anim.text(0, 0, "v", color="#00b894", fontsize=11, fontweight="bold", zorder=8)
-acceleration_label = ax_anim.text(0, 0, "a", color="#e84393", fontsize=11, fontweight="bold", zorder=8)
 theta_text = ax_anim.text(
     0,
     -L * 1.25,
@@ -299,10 +286,7 @@ def draw_swing(frame_index):
     shadow.set_data([x - seat_width * 0.55, x + seat_width * 0.55], [-L * 1.1, -L * 1.1])
     velocity_vector.set_offsets([[x, y + 0.1]])
     velocity_vector.set_UVC([velocity[0]], [velocity[1]])
-    acceleration_vector.set_offsets([[x, y - 0.08]])
-    acceleration_vector.set_UVC([acceleration[0]], [acceleration[1]])
-    velocity_label.set_position((x + velocity[0] + 0.08, y + 0.1 + velocity[1] + 0.04))
-    acceleration_label.set_position((x + acceleration[0] + 0.08, y - 0.08 + acceleration[1] - 0.06))
+    velocity_label.set_position((x + velocity[0] + 0.08, y + 0.1 + velocity[1] + 0.24))
     theta_text.set_text(f"theta(0) = {theta_slider.val:.2f} rad    theta(t) = {theta:.2f} rad")
 
 
@@ -369,9 +353,7 @@ def animate(frame_index):
         bob,
         shadow,
         velocity_vector,
-        acceleration_vector,
         velocity_label,
-        acceleration_label,
         theta_text,
         ec_marker_lin,
         ec_marker_rk4,
@@ -385,8 +367,8 @@ def animate(frame_index):
 ani = animation.FuncAnimation(
     fig,
     animate,
-    frames=np.arange(0, len(t), 4),
-    interval=60,
+    frames=np.arange(0, len(t), 8),
+    interval=20,
     blit=False,
     repeat=True,
 )
