@@ -19,6 +19,13 @@ dt = t[1] - t[0]
 theta0_init = np.pi / 6
 omega0_init = 0.0
 
+palette = {
+    "background": "#FFFBF5",
+    "surface": "#F7EFE5",
+    "accent": "#C3ACD0",
+    "dark": "#674188",
+}
+
 
 def pendulum_derivative(state) -> np.ndarray:
     theta, omega = state
@@ -98,6 +105,7 @@ curves = compute_curves(theta0_init)
 
 plt.style.use("seaborn-v0_8-whitegrid")
 fig = plt.figure(figsize=(13, 7.5))
+fig.patch.set_facecolor(palette["background"])
 fig.canvas.manager.set_window_title("Balancoire - comparaison petits angles / RK4 / Euler")
 grid = fig.add_gridspec(
     2,
@@ -120,38 +128,41 @@ fig.suptitle(
     "Mouvement pendulaire d'une balancoire : petits angles vs RK4 vs Euler",
     fontsize=15,
     fontweight="bold",
+    color=palette["dark"],
 )
 
 
 ax_anim.set_aspect("equal")
+ax_anim.set_facecolor(palette["background"])
 ax_anim.set_xlim(-L * 1.25, L * 1.25)
 ax_anim.set_ylim(-L * 1.18, L * 0.35)
 ax_anim.axis("off")
 ax_anim.set_title("Representation physique", fontweight="bold")
+ax_anim.title.set_color(palette["dark"])
 
 support_y = 0.0
 seat_width = 0.6
 seat_height = 0.08
 
-#ax_anim.plot([-L * 0.9, L * 0.9], [support_y, support_y], color="#2f3542", lw=5)
-ax_anim.plot([-L * 0.85, 0], [-L * 1.05, support_y], color="#57606f", lw=3)
-ax_anim.plot([L * 0.85, 0], [-L * 1.05, support_y], color="#57606f", lw=3)
-ax_anim.add_patch(Circle((0, 0), 0.06, color="#1e272e", zorder=4))
+#ax_anim.plot([-L * 0.9, L * 0.9], [support_y, support_y], color=palette["dark"], lw=5)
+ax_anim.plot([-L * 0.85, 0], [-L * 1.05, support_y], color=palette["dark"], lw=3)
+ax_anim.plot([L * 0.85, 0], [-L * 1.05, support_y], color=palette["dark"], lw=3)
+ax_anim.add_patch(Circle((0, 0), 0.06, color=palette["dark"], zorder=4))
 
-rope_lin, = ax_anim.plot([], [], color="#d63031", lw=2, alpha=0.25, zorder=1)
-bob_lin, = ax_anim.plot([], [], "o", color="#d63031", markersize=15, alpha=0.22, zorder=2)
-rope, = ax_anim.plot([], [], color="#2f3542", lw=3, zorder=5)
-bob, = ax_anim.plot(
+line_pendulum_small, = ax_anim.plot([], [], color=palette["accent"], lw=2, alpha=0.45, zorder=1)
+mass_point_small, = ax_anim.plot([], [], "o", color=palette["accent"], markersize=15, alpha=0.35, zorder=2)
+line_pendulum, = ax_anim.plot([], [], color=palette["dark"], lw=3, zorder=5)
+mass_point, = ax_anim.plot(
     [],
     [],
     "o",
-    color="#0984e3",
+    color=palette["dark"],
     markersize=18,
     markeredgecolor="white",
     markeredgewidth=2,
     zorder=6,
 )
-shadow, = ax_anim.plot([], [], color="#ced6e0", lw=8, alpha=0.35, solid_capstyle="round", zorder=0)
+shadow, = ax_anim.plot([], [], color=palette["accent"], lw=8, alpha=0.25, solid_capstyle="round", zorder=0)
 velocity_vector = ax_anim.quiver(
     [0],
     [0],
@@ -160,11 +171,11 @@ velocity_vector = ax_anim.quiver(
     angles="xy",
     scale_units="xy",
     scale=1,
-    color="#00b894",
+    color=palette["dark"],
     width=0.008,
     zorder=7,
 )
-velocity_label = ax_anim.text(0, 0, "V", color="#00b894", fontsize=11, fontweight="bold", zorder=8)
+velocity_label = ax_anim.text(0, 0, "V", color=palette["dark"], fontsize=11, fontweight="bold", zorder=8)
 theta_text = ax_anim.text(
     0,
     -L * 1.25,
@@ -172,16 +183,16 @@ theta_text = ax_anim.text(
     ha="center",
     va="center",
     fontsize=11,
-    color="#2f3542",
+    color=palette["dark"],
 )
 
 
 # Courbes d'energie
 colors = {
-    "theory": "#d63031",
-    "rk4": "#0984e3",
-    "euler": "#e67e22",
-    "marker": "#2d3436",
+    "theory": "#a83232",
+    "rk4": "#c65454",
+    "euler": "#7f1f2a",
+    "marker": palette["dark"],
 }
 
 line_ec_lin, = ax_ec.plot(
@@ -205,11 +216,12 @@ line_ec_euler, = ax_ec.plot(
     color=colors["euler"],
     lw=2,
     ls=":",
+    alpha=0.75,
     label="Euler",
 )
 ec_marker_lin, = ax_ec.plot([], [], "o", color=colors["theory"], ms=6)
-ec_marker_rk4, = ax_ec.plot([], [], "o", color=colors["rk4"], ms=6)
-ec_marker_euler, = ax_ec.plot([], [], "o", color=colors["euler"], ms=6)
+ec_marker_rk4, = ax_ec.plot([], [], "s", color=colors["rk4"], ms=6)
+ec_marker_euler, = ax_ec.plot([], [], "^", color=colors["euler"], ms=6)
 
 line_ep_lin, = ax_ep.plot(
     t,
@@ -232,11 +244,12 @@ line_ep_euler, = ax_ep.plot(
     color=colors["euler"],
     lw=2,
     ls=":",
+    alpha=0.75,
     label="Euler",
 )
 ep_marker_lin, = ax_ep.plot([], [], "o", color=colors["theory"], ms=6)
-ep_marker_rk4, = ax_ep.plot([], [], "o", color=colors["rk4"], ms=6)
-ep_marker_euler, = ax_ep.plot([], [], "o", color=colors["euler"], ms=6)
+ep_marker_rk4, = ax_ep.plot([], [], "s", color=colors["rk4"], ms=6)
+ep_marker_euler, = ax_ep.plot([], [], "^", color=colors["euler"], ms=6)
 
 for ax, ylabel, title in [
     (ax_ec, "Energie cinetique Ec (J)", "Graphique 1 - Energie cinetique"),
@@ -246,8 +259,15 @@ for ax, ylabel, title in [
     ax.set_xlabel("Temps t (s)")
     ax.set_ylabel(ylabel)
     ax.set_title(title, fontweight="bold")
-    ax.legend(loc="upper right", frameon=True)
-    ax.grid(True, alpha=0.25)
+    ax.set_facecolor(palette["surface"])
+    ax.tick_params(colors=palette["dark"])
+    ax.xaxis.label.set_color(palette["dark"])
+    ax.yaxis.label.set_color(palette["dark"])
+    ax.title.set_color(palette["dark"])
+    ax.legend(loc="upper right", frameon=True, facecolor=palette["background"], edgecolor=palette["accent"])
+    ax.grid(True, alpha=0.35, color=palette["accent"])
+    for spine in ax.spines.values():
+        spine.set_color(palette["accent"])
 
 
 def set_energy_limits() -> None:
@@ -272,22 +292,22 @@ def draw_swing(frame_index) -> None:
     y = -L * np.cos(theta)
     x_lin = L * np.sin(theta_lin)
     y_lin = -L * np.cos(theta_lin)
-
+    vector_scale = 2.3
     tangent = np.array([np.cos(theta), np.sin(theta)])
     velocity_length = np.clip(0.28 * omega, -0.65, 0.65)
-    acceleration_length = np.clip(-0.16 * g * np.sin(theta), -0.65, 0.65)
-    velocity = velocity_length * tangent
-    acceleration = acceleration_length * tangent
+    velocity = velocity_length * tangent * vector_scale
+    velocity_norm = np.linalg.norm(velocity)
+    label_direction = velocity / velocity_norm if velocity_norm > 1e-6 else tangent
+    label_position = np.array([x, y]) + velocity + 0.18 * label_direction
 
-    SCALE = 2.3
-    rope_lin.set_data([0, x_lin], [0, y_lin])
-    bob_lin.set_data([x_lin], [y_lin + 0.1])
-    rope.set_data([0, x], [0, y])
-    bob.set_data([x], [y + 0.1])
+    line_pendulum_small.set_data([0, x_lin], [0, y_lin])
+    mass_point_small.set_data([x_lin], [y_lin])
+    line_pendulum.set_data([0, x], [0, y])
+    mass_point.set_data([x], [y])
     shadow.set_data([x - seat_width * 0.55, x + seat_width * 0.55], [-L * 1.1, -L * 1.1])
-    velocity_vector.set_offsets([[x, y + 0.1]])
-    velocity_vector.set_UVC([velocity[0]*SCALE], [velocity[1]*SCALE])
-    velocity_label.set_position((x + velocity[0] + 0.08, y + 0.1 + velocity[1] - 0.24))
+    velocity_vector.set_offsets([[x, y]])
+    velocity_vector.set_UVC([velocity[0]], [velocity[1]])
+    velocity_label.set_position(label_position)
     theta_text.set_text(f"theta(0) = {theta_slider.val:.2f} rad    theta(t) = {theta:.2f} rad")
 
 
@@ -326,6 +346,7 @@ def reset(_event) -> None:
 
 
 slider_ax = fig.add_axes([0.18, 0.08, 0.60, 0.035])
+slider_ax.set_facecolor(palette["surface"])
 theta_slider = Slider(
     ax=slider_ax,
     label="Angle initial theta(0) en rad",
@@ -333,12 +354,14 @@ theta_slider = Slider(
     valmax=np.pi / 2,
     valinit=theta0_init,
     valstep=0.01,
-    color="#0984e3",
+    color=palette["dark"],
 )
 theta_slider.on_changed(on_slider_change)
 
 button_ax = fig.add_axes([0.83, 0.072, 0.1, 0.05])
-reset_button = Button(button_ax, "Reset", color="#f1f2f6", hovercolor="#dfe4ea")
+button_ax.set_facecolor(palette["surface"])
+reset_button = Button(button_ax, "Reset", color=palette["surface"], hovercolor=palette["accent"])
+reset_button.label.set_color(palette["dark"])
 reset_button.on_clicked(reset)
 
 set_energy_limits()
@@ -348,10 +371,10 @@ def animate(frame_index) -> tuple[object, ...]:
     draw_swing(frame_index)
     draw_markers(frame_index)
     return (
-        rope_lin,
-        bob_lin,
-        rope,
-        bob,
+        line_pendulum_small,
+        mass_point_small,
+        line_pendulum,
+        mass_point,
         shadow,
         velocity_vector,
         velocity_label,
